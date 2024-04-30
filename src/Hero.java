@@ -1,21 +1,34 @@
 import java.util.HashMap;
+import java.util.Map;
 
 public class Hero extends Entite{
-
-    public Hero(Case c) {
-        super(c);
-    }
     @Override
-    public void Se_deplacer_vers(Case suivante, Direction d, int h, int l, HashMap<Case,Point> map){
-        if (suivante.entrer(d)){
-            map.remove(this.c);
+    public Point Se_deplacer_vers(Case caseHero, Case suivante, HashMap<Case,Point> map){
+        if(suivante.entite instanceof Bloc){
+            pousser(suivante,map);
+        }
+        if (suivante.entrer()){
+            map.remove(caseHero);
             map.remove(suivante);
-            this.c.entite = null;
+            caseHero.entite = null;
             suivante.entite = this;
-            map.put(c,this.c.p);
-            c.move(d,h,l);
-            c.entite = new Hero(suivante);
+            map.put(caseHero,caseHero.p);
             map.put(suivante,suivante.p);
+            System.out.println("passe");
+            setChanged();
+            notifyObservers();
+            return suivante.p;
+        }
+        return caseHero.p;
+    }
+    public void pousser(Case elementApousser, HashMap<Case,Point> Map){
+        Point p = new Point(elementApousser.p.x,elementApousser.p.y-1);
+        for (Map.Entry<Case,Point> entry: Map.entrySet()){
+            if (entry.getValue().equals(p)){
+                Case suivante = entry.getKey();
+                elementApousser.entite.Se_deplacer_vers(elementApousser,suivante,Map);
+                break;
+            }
         }
     }
 }

@@ -6,7 +6,7 @@ public class Mur extends Case{
     }
 
     @Override
-    public boolean entrer( Direction d) {
+    public boolean entrer() {
         return false;
     }
 }
