@@ -7,5 +7,5 @@ public abstract class Entite {
         this.c =c;
     }
 
-    public abstract void  Se_deplacer_vers(Case suivante, Direction d, int h, int l, HashMap<Case,Point> map);
+    public abstract HashMap<Case,Point>  Se_deplacer_vers(Case suivante, Direction d, int h, int l, HashMap<Case,Point> map);
 }

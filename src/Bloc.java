@@ -6,7 +6,7 @@ public class Bloc extends Entite{
     }
 
     @Override
-    public void Se_deplacer_vers(Case suivante, Direction d, int h, int l, HashMap<Case,Point> map) {
-        return;
+    public HashMap<Case,Point> Se_deplacer_vers(Case suivante, Direction d, int h, int l, HashMap<Case,Point> map) {
+        return map;
     }
 }

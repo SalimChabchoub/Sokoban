@@ -8,10 +8,10 @@ public class Vide extends Case{
 
     @Override
     public boolean entrer(Direction d){
-        return true;
-//        if (this.entite != null){
-//            return true;
-//        }
-//        return false;
+        //return true;
+        if (this.entite == null){
+            return true;
+        }
+        return false;
     }
 }

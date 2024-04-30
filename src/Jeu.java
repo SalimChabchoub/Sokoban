@@ -90,6 +90,7 @@ public class Jeu extends JFrame implements Observer, Runnable {
                         p = new Point(h.c.p.x,h.c.p.y-1);
 
                         suivante = trouveCase(p);
+                        System.out.println(suivante.entite == null);
                         h.Se_deplacer_vers(suivante,Direction.UP,H,L,Map);
                         break;
                     case KeyEvent.VK_DOWN:
@@ -117,7 +118,7 @@ public class Jeu extends JFrame implements Observer, Runnable {
     @Override
     public void run() {
         while (gamethread != null){
-            System.out.println(h.c.p.x + "," +h.c.p.y);
+//            System.out.println(h.c.p.x + "," +h.c.p.y);
 
         }
     }
