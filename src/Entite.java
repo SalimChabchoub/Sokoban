@@ -1,11 +1,6 @@
 import java.util.HashMap;
+import java.util.Observable;
 
-public abstract class Entite {
-    Case c;
-
-    public Entite(Case c) {
-        this.c =c;
-    }
-
-    public abstract HashMap<Case,Point>  Se_deplacer_vers(Case suivante, Direction d, int h, int l, HashMap<Case,Point> map);
+public abstract class Entite extends Observable {
+    public abstract Point Se_deplacer_vers(Case origine, Case suivante, HashMap<Case, Point> map, Direction d);
 }

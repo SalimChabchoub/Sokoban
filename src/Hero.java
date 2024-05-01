@@ -1,32 +1,45 @@
 import java.util.HashMap;
+import java.util.Map;
 
-public class Hero extends Entite{
-
-    public Hero(Case c) {
-        super(c);
+public class Hero extends Entite {
+    @Override
+    public Point Se_deplacer_vers(Case caseHero, Case suivante, HashMap<Case, Point> map, Direction d) {
+        if (suivante.entite instanceof Bloc) {
+            pousser(suivante, map, d);
+        }
+        if (suivante.entrer()) {
+            map.remove(caseHero);
+            map.remove(suivante);
+            caseHero.entite = null;
+            suivante.entite = this;
+            map.put(caseHero, caseHero.p);
+            map.put(suivante, suivante.p);
+//            System.out.println("passe");
+            setChanged();
+            notifyObservers();
+            return suivante.p;
+        }
+        return caseHero.p;
     }
 
-//    public void pousser(Case suivante,Direction d){
-//        if(suivante.entrer())
-//    }
-    @Override
-    public HashMap<Case,Point> Se_deplacer_vers(Case suivante, Direction d, int h, int l, HashMap<Case,Point> map){
-        if (suivante.entrer(d)){
-//            if (suivante.entite instanceof Bloc){
-//
-//                suivante.entite.Se_deplacer_vers();
-//            }
-            map.remove(this.c);
-            map.remove(suivante);
-            //this.c.entite = null;
-            Case ancienne = new Vide(this.c.p);
-            //suivante.entite = this;
-            map.put(ancienne,this.c.p);
-            this.c.move(d,h,l);
-            //c.entite = new Hero(suivante);
-            map.put(this.c,this.c.p);
-            System.out.println((this.c.entite == null) + " fact");
+    public void pousser(Case elementApousser, HashMap<Case, Point> Map, Direction d) {
+        Point p;
+        if (d == Direction.UP) {
+            p = new Point(elementApousser.p.x, elementApousser.p.y - 1);
+        } else if (d == Direction.DOWN) {
+            p = new Point(elementApousser.p.x, elementApousser.p.y + 1);
+        } else if (d == Direction.LEFT) {
+            p = new Point(elementApousser.p.x - 1, elementApousser.p.y);
+        } else {
+            p = new Point(elementApousser.p.x + 1, elementApousser.p.y);
         }
-        return map;
+
+        for (Map.Entry<Case, Point> entry : Map.entrySet()) {
+            if (entry.getValue().equals(p)) {
+                Case suivante = entry.getKey();
+                elementApousser.entite.Se_deplacer_vers(elementApousser, suivante, Map, d);
+                break;
+            }
+        }
     }
 }

@@ -4,8 +4,6 @@ import java.util.Observer;
 
 public abstract class Case extends Observable {
     Point p;
-
-
     Entite entite;
     public Case(Point p){
         this.p = p;
@@ -25,9 +23,11 @@ public abstract class Case extends Observable {
             case RIGHT:
                 this.p.x = (p.x+1)%(L);
         }
-        setChanged();
-        notifyObservers();
+
     }
 
-    public abstract boolean entrer ( Direction d);
+    public abstract boolean entrer ();
+    public void quitter(){
+        this.entite=null;
+    }
 }
