@@ -12,6 +12,8 @@ import java.util.Map.Entry;
 public class Jeu extends JFrame implements Observer {
     Point pHeros;
     Point pBloc;
+
+    int nbbloc =2;
     final int L = 15, H = 15;
 
     HashMap<Case, Point> Map;
@@ -56,13 +58,18 @@ public class Jeu extends JFrame implements Observer {
                     Mur m = new Mur(point);
                     Map.put(m, point);
                     tabC[i][j].setBackground(Color.orange);
-                } else {
+                }else if ((i == 10 && j == 10) ||(i == 13 && j == 13)) {
+                    Vide v = new Target(point);
+                    v.entite = null;
+                    tabC[i][j].setBackground(Color.GREEN);
+                    Map.put(v,point);
+                }  else {
                     Vide v = new Vide(point);
                     if (v.p.equals(pHeros)) {
                         tabC[i][j].setBackground(Color.BLACK);
                         v.entite = new Hero();
                         v.entite.addObserver(this);
-                    } else if (v.p.equals(pBloc)) {
+                    } else if (v.p.equals(pBloc) || (i == 2 && j == 10)) {
                         tabC[i][j].setBackground(Color.red);
                         v.entite = new Bloc();
                     } else {
@@ -76,7 +83,7 @@ public class Jeu extends JFrame implements Observer {
                 jpC.add(tabC[i][j]);
             }
         }
-        jp.setBorder(blackline);
+        //jp.setBorder(blackline);
         this.setVisible(true);
 
     }
@@ -93,22 +100,22 @@ public class Jeu extends JFrame implements Observer {
                     case KeyEvent.VK_UP:
                         p = new Point(pHeros.x, (pHeros.y+H - 1)%H);
                         suivante = trouveCase(p);
-                        pHeros = notreHero.Se_deplacer_vers(caseHero,suivante, Map);
+                        pHeros = notreHero.Se_deplacer_vers(caseHero,suivante, Map, Direction.UP);
                         break;
                     case KeyEvent.VK_DOWN:
                         p = new Point(pHeros.x, (pHeros.y+H + 1)%H);
                         suivante = trouveCase(p);
-                        pHeros = notreHero.Se_deplacer_vers(caseHero, suivante, Map);
+                        pHeros = notreHero.Se_deplacer_vers(caseHero, suivante, Map,Direction.DOWN);
                         break;
                     case KeyEvent.VK_RIGHT:
                         p = new Point((pHeros.x+L+1)%L, pHeros.y);
                         suivante = trouveCase(p);
-                        pHeros = notreHero.Se_deplacer_vers(caseHero, suivante,Map);
+                        pHeros = notreHero.Se_deplacer_vers(caseHero, suivante,Map,Direction.RIGHT);
                         break;
                     case KeyEvent.VK_LEFT:
                         p = new Point((pHeros.x+L-1)%L, pHeros.y);
                         suivante = trouveCase(p);
-                        pHeros = notreHero.Se_deplacer_vers(caseHero,suivante, Map);
+                        pHeros = notreHero.Se_deplacer_vers(caseHero,suivante, Map,Direction.LEFT);
                         break;
                 }
             }
@@ -121,7 +128,8 @@ public class Jeu extends JFrame implements Observer {
     public void update(Observable o, Object arg) {
         Point p;
         Case c;
-        System.out.println("affiche");
+        int nbcible =0; //nombre de cible atteint
+//        System.out.println("affiche");
         for (int i = 0; i <H; i++) {
             for (int j = 0; j < L; j++) {
                 p = new Point(j, i);
@@ -129,7 +137,11 @@ public class Jeu extends JFrame implements Observer {
                 if (c instanceof Mur) {
                     tabC[i][j].setBackground(Color.orange);
                 } if (c instanceof Vide) {
-                     tabC[i][j].setBackground(Color.white);
+                    tabC[i][j].setBackground(Color.white);
+                }if(c instanceof  Target){
+                    if (!(c.entite instanceof Bloc))
+                        nbcible+=1;
+                    tabC[i][j].setBackground(Color.GREEN);
                 }
                 if (c.entite instanceof Hero){
                     tabC[i][j].setBackground(Color.BLACK);
@@ -138,6 +150,9 @@ public class Jeu extends JFrame implements Observer {
                     tabC[i][j].setBackground(Color.RED);
                 }
             }
+        }
+        if (nbcible == 0){
+            System.out.println("partie termine");
         }
     }
 }
