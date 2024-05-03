@@ -12,6 +12,8 @@ import java.util.Map.Entry;
 public class Jeu extends JFrame implements Observer {
     Point pHeros;
     Point pBloc;
+
+    int nbbloc =2;
     final int L = 15, H = 15;
 
     HashMap<Case, Point> Map;
@@ -56,7 +58,7 @@ public class Jeu extends JFrame implements Observer {
                     Mur m = new Mur(point);
                     Map.put(m, point);
                     tabC[i][j].setBackground(Color.orange);
-                }else if (i == 10 && j == 10) {
+                }else if ((i == 10 && j == 10) ||(i == 13 && j == 13)) {
                     Vide v = new Target(point);
                     v.entite = null;
                     tabC[i][j].setBackground(Color.GREEN);
@@ -67,7 +69,7 @@ public class Jeu extends JFrame implements Observer {
                         tabC[i][j].setBackground(Color.BLACK);
                         v.entite = new Hero();
                         v.entite.addObserver(this);
-                    } else if (v.p.equals(pBloc)) {
+                    } else if (v.p.equals(pBloc) || (i == 2 && j == 10)) {
                         tabC[i][j].setBackground(Color.red);
                         v.entite = new Bloc();
                     } else {
@@ -126,6 +128,7 @@ public class Jeu extends JFrame implements Observer {
     public void update(Observable o, Object arg) {
         Point p;
         Case c;
+        int nbcible =0; //nombre de cible atteint
 //        System.out.println("affiche");
         for (int i = 0; i <H; i++) {
             for (int j = 0; j < L; j++) {
@@ -136,8 +139,8 @@ public class Jeu extends JFrame implements Observer {
                 } if (c instanceof Vide) {
                     tabC[i][j].setBackground(Color.white);
                 }if(c instanceof  Target){
-                    if (c.entite instanceof Bloc)
-                        System.out.println("partie termine");
+                    if (!(c.entite instanceof Bloc))
+                        nbcible+=1;
                     tabC[i][j].setBackground(Color.GREEN);
                 }
                 if (c.entite instanceof Hero){
@@ -147,6 +150,9 @@ public class Jeu extends JFrame implements Observer {
                     tabC[i][j].setBackground(Color.RED);
                 }
             }
+        }
+        if (nbcible == 0){
+            System.out.println("partie termine");
         }
     }
 }
