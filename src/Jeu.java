@@ -14,9 +14,11 @@ public class Jeu extends Observable {
     HashMap<Case, Point> Map;
 
 
-    public Jeu(Point pHeros, Point pBloc) {
-        this.pHeros = pHeros;
-        this.pBloc = pBloc;
+    public Jeu() {
+        Point p = new Point(1, 2);
+        Point pos_bloc = new Point(8, 8);
+        this.pHeros = p;
+        this.pBloc = pos_bloc;
     }
 
     public Point trouvePoint(Case c) {
@@ -37,7 +39,7 @@ public class Jeu extends Observable {
         for (int i = 0; i < H; i++) {
             for (int j = 0; j < L; j++) {
                 Point point = new Point(j, i);
-                if (i == 0 || j == 0 || j == L - 1 || i == H - 1) {
+                if (i == 0 || j == 0 || j == L - 1 || i == H - 1 || (j== 1 && i == H/2) || (i== 1 && j == L/2) || (i== 2 && j == L/2)) {
                     Mur m = new Mur(point);
                     Map.put(m, point);
 
@@ -95,10 +97,8 @@ public class Jeu extends Observable {
         for (Entry<Case, Point> entry : this.Map.entrySet()) {
             c = entry.getKey();
             if (c instanceof Target) {
-
                 if (!(c.entite instanceof Bloc))
                     nbcible += 1;
-
             }
         }
 

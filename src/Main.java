@@ -6,10 +6,7 @@ import java.util.logging.Level;
 // then press Enter. You can now see whitespace characters in your code.
 public class Main {
     public static void main(String[] args) {
-        Point p = new Point(1, 2);
-        Point pos_bloc = new Point(8, 8);
-        Jeu grille = new Jeu(p, pos_bloc);
-        MF mf = new MF(grille);
-        mf.setVisible(true);
+        Jeu grille = new Jeu();
+        new MF(grille);
     }
 }
