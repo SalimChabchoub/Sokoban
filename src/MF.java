@@ -184,8 +184,11 @@ public class MF extends JFrame implements Observer {
                             tabC[i][j].setBarrelImage(null);
                         }
                         if (c.entite instanceof Hero) {
+                            final int finalI = i;
+                            final int finalJ = j;
                             J.setAttendHero(true);
-                            character.moveTo(J.pHeros.y, J.pHeros.x,J);
+                            Thread heroMovementThread = new Thread(() -> character.moveTo(finalI, finalJ,J));
+                            heroMovementThread.start();
                         }
                     }
                 }
