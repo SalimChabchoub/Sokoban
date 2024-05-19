@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 public class Jeu extends Observable {
     public Point pHeros;
     public int L, H;
-
+    boolean attendHero = false;
     public HashMap<Case, Point> Map = new HashMap<>();
 
 
@@ -33,7 +33,7 @@ public class Jeu extends Observable {
         Case caseHero = trouveCase(pHeros);
         Hero notreHero = (Hero) caseHero.entite;
         if (d == Direction.UP) {
-            p = new Point(pHeros.x, (pHeros.y + this.H - 1) % this.H);
+            p = new Point(pHeros.x, (pHeros.y + H - 1) % H);
             suivante = trouveCase(p);
             pHeros = notreHero.Se_deplacer_vers(caseHero, suivante, Map, Direction.UP);
         } else if (d == Direction.DOWN) {
@@ -54,16 +54,18 @@ public class Jeu extends Observable {
         notifyObservers();
     }
 
+    public void setAttendHero(boolean value) {
+        attendHero = value;
+    }
+
     public boolean dectecteVictoire() {
         int nbcible = 0;
         Case c;
         for (Entry<Case, Point> entry : this.Map.entrySet()) {
             c = entry.getKey();
             if (c instanceof Target) {
-
                 if (!(c.entite instanceof Bloc))
                     nbcible += 1;
-
             }
         }
 
