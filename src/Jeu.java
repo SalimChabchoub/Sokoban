@@ -7,16 +7,18 @@ import java.util.Map.Entry;
 public class Jeu extends Observable {
     Point pHeros;
     Point pBloc;
-
+    boolean attendHero = false;
     int nbbloc = 2;
     final int L = 15, H = 15;
 
     HashMap<Case, Point> Map;
 
 
-    public Jeu(Point pHeros, Point pBloc) {
-        this.pHeros = pHeros;
-        this.pBloc = pBloc;
+    public Jeu() {
+        Point p = new Point(1, 2);
+        Point pos_bloc = new Point(8, 8);
+        this.pHeros = p;
+        this.pBloc = pos_bloc;
     }
 
     public Point trouvePoint(Case c) {
@@ -37,7 +39,7 @@ public class Jeu extends Observable {
         for (int i = 0; i < H; i++) {
             for (int j = 0; j < L; j++) {
                 Point point = new Point(j, i);
-                if (i == 0 || j == 0 || j == L - 1 || i == H - 1) {
+                if (i == 0 || j == 0 || j == L - 1 || i == H - 1 || (j== 1 && i == H/2) || (i== 1 && j == L/2) || (i== 2 && j == L/2)) {
                     Mur m = new Mur(point);
                     Map.put(m, point);
 
@@ -49,7 +51,6 @@ public class Jeu extends Observable {
                     Vide v = new Vide(point);
                     if (v.p.equals(pHeros)) {
                         v.entite = new Hero();
-                        //v.entite.addObserver(this);
                     } else if (v.p.equals(pBloc) || (i == 2 && j == 10)) {
                         v.entite = new Bloc();
                     } else {
@@ -63,42 +64,44 @@ public class Jeu extends Observable {
     }
 
     public void deplacerHero(Direction d) {
-        Point p;
-        Case suivante;
-        Case caseHero = trouveCase(pHeros);
-        Hero notreHero = (Hero) caseHero.entite;
-        if (d == Direction.UP) {
-            p = new Point(pHeros.x, (pHeros.y + H - 1) % H);
-            suivante = trouveCase(p);
-            pHeros = notreHero.Se_deplacer_vers(caseHero, suivante, Map, Direction.UP);
-        } else if (d == Direction.DOWN) {
-            p = new Point(pHeros.x, (pHeros.y + H + 1) % H);
-            suivante = trouveCase(p);
-            pHeros = notreHero.Se_deplacer_vers(caseHero, suivante, Map, Direction.DOWN);
-        } else if (d == Direction.LEFT) {
-            p = new Point((pHeros.x + L - 1) % L, pHeros.y);
-            suivante = trouveCase(p);
-            pHeros = notreHero.Se_deplacer_vers(caseHero, suivante, Map, Direction.LEFT);
+        if(!attendHero) {
+            Point p;
+            Case suivante;
+            Case caseHero = trouveCase(pHeros);
+            Hero notreHero = (Hero) caseHero.entite;
+            if (d == Direction.UP) {
+                p = new Point(pHeros.x, (pHeros.y + H - 1) % H);
+                suivante = trouveCase(p);
+                pHeros = notreHero.Se_deplacer_vers(caseHero, suivante, Map, Direction.UP);
+            } else if (d == Direction.DOWN) {
+                p = new Point(pHeros.x, (pHeros.y + H + 1) % H);
+                suivante = trouveCase(p);
+                pHeros = notreHero.Se_deplacer_vers(caseHero, suivante, Map, Direction.DOWN);
+            } else if (d == Direction.LEFT) {
+                p = new Point((pHeros.x + L - 1) % L, pHeros.y);
+                suivante = trouveCase(p);
+                pHeros = notreHero.Se_deplacer_vers(caseHero, suivante, Map, Direction.LEFT);
 
-        } else {
-            p = new Point((pHeros.x + L + 1) % L, pHeros.y);
-            suivante = trouveCase(p);
-            pHeros = notreHero.Se_deplacer_vers(caseHero, suivante, Map, Direction.RIGHT);
+            } else {
+                p = new Point((pHeros.x + L + 1) % L, pHeros.y);
+                suivante = trouveCase(p);
+                pHeros = notreHero.Se_deplacer_vers(caseHero, suivante, Map, Direction.RIGHT);
+            }
+            setChanged();
+            notifyObservers();
         }
-        setChanged();
-        notifyObservers();
     }
-
+    public void setAttendHero(boolean value){
+        attendHero = value;
+    }
     public boolean dectecteVictoire() {
         int nbcible = 0;
         Case c;
         for (Entry<Case, Point> entry : this.Map.entrySet()) {
             c = entry.getKey();
             if (c instanceof Target) {
-
                 if (!(c.entite instanceof Bloc))
                     nbcible += 1;
-
             }
         }
 
