@@ -1,4 +1,4 @@
-import java.util.HashMap;
+package Modele;
 
 public class Vide extends Case{
 

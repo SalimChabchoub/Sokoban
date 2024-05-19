@@ -1,3 +1,5 @@
+package Modele;
+
 import java.util.HashMap;
 
 public class Bloc extends Entite {

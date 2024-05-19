@@ -1,10 +1,10 @@
-import java.util.HashMap;
+package Modele;
+
 import java.util.Observable;
-import java.util.Observer;
 
 public abstract class Case extends Observable {
-    Point p;
-    Entite entite;
+    public Point p;
+    public Entite entite;
     public Case(Point p){
         this.p = p;
     }

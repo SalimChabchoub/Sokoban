@@ -1,5 +1,10 @@
+package View_Controller;
+
+import Modele.*;
+import Modele.Point;
+import Modele.Jeu;
+
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Observable;
@@ -15,9 +20,10 @@ public class MF extends JFrame implements Observer {
     private JPanel jp;
     private CharacterAnimationPanel characterPanel;
     private Character character;
+
     public MF(Jeu J) {
         this.J = J;
-        this.tabC = new ImagePanel[J.L][J.H];
+        this.tabC = new ImagePanel[J.H][J.L];
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 build();
@@ -28,10 +34,9 @@ public class MF extends JFrame implements Observer {
     }
 
     public void build() {
-        J.initialiseGrille();
         Case c;
         layeredPane = new JLayeredPane();
-        layeredPane.setPreferredSize(new Dimension(J.L*200, J.H*200));
+        layeredPane.setPreferredSize(new Dimension(J.L * 200, J.H * 200));
         layeredPane.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -39,15 +44,18 @@ public class MF extends JFrame implements Observer {
             }
         });
         jp = new JPanel(new BorderLayout());
-        JPanel jpC = new JPanel(new GridLayout(J.L, J.H));
-        jp.setBounds(0, 0, J.L*200, J.H*200);
+        JPanel jpC = new JPanel(new GridLayout(J.H, J.L));
+        jp.setBounds(0, 0, J.L * 200, J.H * 200);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JButton restartButton = new JButton("Reset");
+        jp.add(restartButton, BorderLayout.BEFORE_FIRST_LINE);
         jp.add(jpC, BorderLayout.CENTER);
         setTitle("Sobokan");
         add(jp);
         setSize(J.L * 50, J.H * 50);
         characterPanel = new CharacterAnimationPanel();
-        characterPanel.setSize(jp.getWidth()/J.L,jp.getWidth()/J.H);
+//        characterPanel.setSize(jp.getWidth()/J.L,jp.getWidth()/J.H);
+        characterPanel.setSize(jpC.getWidth() / J.L, jpC.getWidth() / J.H);
         characterPanel.setOpaque(false);
         layeredPane.add(jp, JLayeredPane.DEFAULT_LAYER);
         layeredPane.add(characterPanel, JLayeredPane.PALETTE_LAYER);
@@ -61,16 +69,16 @@ public class MF extends JFrame implements Observer {
                     tabC[i][j].setImageToDisplay(ImageLoader.wallImage);
                 } else {
                     tabC[i][j].setImageToDisplay(ImageLoader.groundImage);
-                    if(J.trouveCase(new Point(j, i-1)) instanceof Mur){
+                    if (J.trouveCase(new Point(j, i - 1)) instanceof Mur) {
                         tabC[i][j].setWallTopImage(ImageLoader.wallTop);
                     }
-                    if(J.trouveCase(new Point(j-1, i)) instanceof Mur){
+                    if (J.trouveCase(new Point(j - 1, i)) instanceof Mur) {
                         tabC[i][j].setWallLeftImage(ImageLoader.wallLeft);
                     }
-                    if(J.trouveCase(new Point(j+1, i)) instanceof Mur){
+                    if (J.trouveCase(new Point(j + 1, i)) instanceof Mur) {
                         tabC[i][j].setWallRightImage(ImageLoader.wallRight);
                     }
-                    if(J.trouveCase(new Point(j, i+1)) instanceof Mur){
+                    if (J.trouveCase(new Point(j, i + 1)) instanceof Mur) {
                         tabC[i][j].setWallBottomImage(ImageLoader.wallBottom);
                     }
                 }
@@ -86,6 +94,17 @@ public class MF extends JFrame implements Observer {
             }
         }
         this.setVisible(true);
+        restartButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                J = new Jeu();
+                LevelLector.readLevel("src/View_Controller/Levels.txt", J);
+                getContentPane().removeAll();
+                tabC = new ImagePanel[J.H][J.L];
+                build();
+                MF.this.requestFocus();
+            }
+        });
     }
 
 
@@ -104,6 +123,7 @@ public class MF extends JFrame implements Observer {
         layeredPane.repaint();
         characterPanel.repaint();
     }
+
     public void addEC() {
         addKeyListener(new KeyAdapter() {
             @Override
@@ -125,10 +145,13 @@ public class MF extends JFrame implements Observer {
                     case KeyEvent.VK_LEFT:
                         J.deplacerHero(Direction.LEFT);
                         break;
-            }}
+                }
+            }
+
         });
         requestFocus();
     }
+
     public void animateBarrelMovement(int startRow, int startCol, int endRow, int endCol) {
         final ImagePanel barrelPanel = tabC[startRow][startCol];
         final int targetX = endCol * barrelPanel.getWidth();
@@ -187,7 +210,7 @@ public class MF extends JFrame implements Observer {
                             final int finalI = i;
                             final int finalJ = j;
                             J.setAttendHero(true);
-                            Thread heroMovementThread = new Thread(() -> character.moveTo(finalI, finalJ,J));
+                            Thread heroMovementThread = new Thread(() -> character.moveTo(finalI, finalJ, J));
                             heroMovementThread.start();
                         }
                     }
@@ -195,6 +218,12 @@ public class MF extends JFrame implements Observer {
                 repaint();
                 if (J.dectecteVictoire()) {
                     System.out.println("partie termine");
+                    JLabel label = new JLabel("<html><center> Victory !<br> Level Completed !<br><img width = '100' height = '100' src ='" + getClass().getResource("zoro.jpg") + "'></center></html>");
+                    int result = JOptionPane.showOptionDialog(MF.this, label, "Victoire", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, new String[]{"OK"}, "OK");
+                    if (result == JOptionPane.OK_OPTION) {
+                        dispose();
+                        System.exit(0);
+                    }
                 }
             }
         });

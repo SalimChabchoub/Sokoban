@@ -1,4 +1,6 @@
-import javax.security.auth.callback.Callback;
+package View_Controller;
+
+import Modele.Jeu;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
