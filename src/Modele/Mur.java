@@ -1,4 +1,4 @@
-import java.util.HashMap;
+package Modele;
 
 public class Mur extends Case{
     public Mur(Point p) {

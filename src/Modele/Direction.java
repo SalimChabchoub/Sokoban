@@ -1,3 +1,5 @@
+package Modele;
+
 public enum Direction {
     UP,
     DOWN,

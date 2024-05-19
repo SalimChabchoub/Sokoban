@@ -1,23 +1,23 @@
-import java.awt.*;
+package Modele;
+
+import View_Controller.LevelLector;
+
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Map.Entry;
 
 
 public class Jeu extends Observable {
-    Point pHeros;
-    Point pBloc;
+    public Point pHeros;
+    public int L, H;
 
-    int nbbloc = 2;
-    final int L = 15, H = 15;
-
-    HashMap<Case, Point> Map;
+    public HashMap<Case, Point> Map = new HashMap<>();
 
 
-    public Jeu(Point pHeros, Point pBloc) {
-        this.pHeros = pHeros;
-        this.pBloc = pBloc;
-    }
+//    public Jeu(Point pHeros, Point pBloc) {
+//        //this.pHeros = pHeros;
+////        this.pBloc = pBloc;
+//    }
 
     public Point trouvePoint(Case c) {
         return this.Map.get(c);
@@ -33,33 +33,33 @@ public class Jeu extends Observable {
     }
 
     public void initialiseGrille() {
-        this.Map = new HashMap<>();
-        for (int i = 0; i < H; i++) {
-            for (int j = 0; j < L; j++) {
-                Point point = new Point(j, i);
-                if (i == 0 || j == 0 || j == L - 1 || i == H - 1) {
-                    Mur m = new Mur(point);
-                    Map.put(m, point);
-
-                } else if ((i == 10 && j == 10) || (i == 13 && j == 13)) {
-                    Vide v = new Target(point);
-                    v.entite = null;
-                    Map.put(v, point);
-                } else {
-                    Vide v = new Vide(point);
-                    if (v.p.equals(pHeros)) {
-                        v.entite = new Hero();
-                        //v.entite.addObserver(this);
-                    } else if (v.p.equals(pBloc) || (i == 2 && j == 10)) {
-                        v.entite = new Bloc();
-                    } else {
-                        v.entite = null;
-                    }
-                    Map.put(v, point);
-
-                }
-            }
-        }
+//        Level l = LevelLector.readLevel("src/Levels.txt", this);
+//        for (int i = 0; i < H; i++) {
+//            for (int j = 0; j < L; j++) {
+//                Point point = new Point(j, i);
+//                if (i == 0 || j == 0 || j == L - 1 || i == H - 1) {
+//                    Mur m = new Mur(point);
+//                    Map.put(m, point);
+//
+//                } else if ((i == 10 && j == 10) || (i == 13 && j == 13)) {
+//                    Vide v = new Target(point);
+//                    v.entite = null;
+//                    Map.put(v, point);
+//                } else {
+//                    Vide v = new Vide(point);
+//                    if (v.p.equals(pHeros)) {
+//                        v.entite = new Hero();
+//                        //v.entite.addObserver(this);
+//                    } else if (v.p.equals(pBloc) || (i == 2 && j == 10)) {
+//                        v.entite = new Bloc();
+//                    } else {
+//                        v.entite = null;
+//                    }
+//                    Map.put(v, point);
+//
+//                }
+//            }
+//        }
     }
 
     public void deplacerHero(Direction d) {
@@ -68,7 +68,7 @@ public class Jeu extends Observable {
         Case caseHero = trouveCase(pHeros);
         Hero notreHero = (Hero) caseHero.entite;
         if (d == Direction.UP) {
-            p = new Point(pHeros.x, (pHeros.y + H - 1) % H);
+            p = new Point(pHeros.x, (pHeros.y + this.H - 1) % this.H);
             suivante = trouveCase(p);
             pHeros = notreHero.Se_deplacer_vers(caseHero, suivante, Map, Direction.UP);
         } else if (d == Direction.DOWN) {
@@ -107,5 +107,11 @@ public class Jeu extends Observable {
             return true;
         }
         return false;
+    }
+
+
+    public void restartGame(Jeu j){
+        this.pHeros = j.pHeros;
+        this.Map = new HashMap<>(j.Map);
     }
 }

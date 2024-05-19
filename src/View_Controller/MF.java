@@ -1,30 +1,62 @@
+package View_Controller;
+import Modele.*;
+import Modele.Point;
+import Modele.Jeu;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
 
 public class MF extends JFrame implements Observer {
 
     Jeu J;
+
+    Jeu Copy;
     JPanel[][] tabC;
 
     public MF(Jeu J) {
         this.J = J;
-        this.tabC = new JPanel[J.L][J.H];
+        this.Copy = new Jeu();
+        this.Copy.L  = J.L;
+        this.Copy.H = J.H;
+        this.Copy.pHeros =J.pHeros;
+        this.Copy.Map = new HashMap<>(J.Map);
+        this.tabC = new JPanel[J.H][J.L];
         build();
         addEC();
     }
 
     public void build() {
-        J.initialiseGrille();
         Case c;
         JPanel jp = new JPanel(new BorderLayout());
-        JPanel jpC = new JPanel(new GridLayout(J.L, J.H));
+        JPanel jpInfo = new JPanel(new GridLayout());
+        JPanel jpC = new JPanel(new GridLayout(J.H, J.L));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jp.add(jpC, BorderLayout.CENTER);
+        jp.add(jpInfo,BorderLayout.BEFORE_FIRST_LINE);
+        JButton restartButton = new JButton("Reset");
+        jpInfo.add(restartButton);
+
+        restartButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("wtf");
+                jpC.removeAll();
+                build();
+                jpC.revalidate();
+                jpC.repaint();
+//                J.restartGame(Copy);
+//                build();
+            }
+        });
+
 
         setTitle("Sobokan");
         setSize(J.L * 25, J.H * 25);
@@ -39,13 +71,16 @@ public class MF extends JFrame implements Observer {
                     tabC[i][j].setBackground(Color.orange);
                 } else if (c instanceof Target) {
                     tabC[i][j].setBackground(Color.GREEN);
-                } else if (c.entite instanceof Hero) {
-                    tabC[i][j].setBackground(Color.BLACK);
-                    c.entite.addObserver(this);
-                } else if (c.entite instanceof Bloc) {
-                    tabC[i][j].setBackground(Color.red);
-                } else {
-                    tabC[i][j].setBackground(Color.white);
+
+                } else if (c instanceof Vide) {
+                    if (c.entite instanceof Hero) {
+                        tabC[i][j].setBackground(Color.BLACK);
+                        c.entite.addObserver(this);
+                    } else if (c.entite instanceof Bloc) {
+                        tabC[i][j].setBackground(Color.red);
+                    } else {
+                        tabC[i][j].setBackground(Color.white);
+                    }
                 }
                 tabC[i][j].setBorder(blackline);
                 jpC.add(tabC[i][j]);

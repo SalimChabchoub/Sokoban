@@ -1,3 +1,5 @@
+package Modele;
+
 public class Target extends  Vide{
 
     public Target(Point p) {
