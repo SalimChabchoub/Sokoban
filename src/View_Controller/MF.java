@@ -1,4 +1,5 @@
 package View_Controller;
+
 import Modele.*;
 import Modele.Point;
 import Modele.Jeu;
@@ -18,17 +19,11 @@ public class MF extends JFrame implements Observer {
 
     Jeu J;
 
-    Jeu Copy;
     JPanel[][] tabC;
 
     public MF(Jeu J) {
         this.J = J;
-        this.Copy = new Jeu();
-        this.Copy.L  = J.L;
-        this.Copy.H = J.H;
-        this.Copy.pHeros =J.pHeros;
-        this.Copy.Map = new HashMap<>(J.Map);
-        this.tabC = new JPanel[J.H][J.L];
+        tabC = new JPanel[J.H][J.L];
         build();
         addEC();
     }
@@ -36,27 +31,11 @@ public class MF extends JFrame implements Observer {
     public void build() {
         Case c;
         JPanel jp = new JPanel(new BorderLayout());
-        JPanel jpInfo = new JPanel(new GridLayout());
         JPanel jpC = new JPanel(new GridLayout(J.H, J.L));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        jp.add(jpC, BorderLayout.CENTER);
-        jp.add(jpInfo,BorderLayout.BEFORE_FIRST_LINE);
         JButton restartButton = new JButton("Reset");
-        jpInfo.add(restartButton);
-
-        restartButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("wtf");
-                jpC.removeAll();
-                build();
-                jpC.revalidate();
-                jpC.repaint();
-//                J.restartGame(Copy);
-//                build();
-            }
-        });
-
+        jp.add(restartButton, BorderLayout.BEFORE_FIRST_LINE);
+        jp.add(jpC, BorderLayout.CENTER);
 
         setTitle("Sobokan");
         setSize(J.L * 25, J.H * 25);
@@ -87,6 +66,17 @@ public class MF extends JFrame implements Observer {
             }
         }
         this.setVisible(true);
+        restartButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                J = new Jeu();
+                LevelLector.readLevel("src/View_Controller/Levels.txt", J);
+                getContentPane().removeAll();
+                tabC = new JPanel[J.H][J.L];
+                build();
+                MF.this.requestFocus();
+            }
+        });
     }
 
 
@@ -132,6 +122,7 @@ public class MF extends JFrame implements Observer {
                     tabC[i][j].setBackground(Color.GREEN);
                 }
                 if (c.entite instanceof Hero) {
+                    System.out.println(J.pHeros.x + " " + J.pHeros.y);
                     tabC[i][j].setBackground(Color.BLACK);
                 }
                 if (c.entite instanceof Bloc) {
@@ -141,6 +132,10 @@ public class MF extends JFrame implements Observer {
         }
         if (J.dectecteVictoire()) {
             System.out.println("partie termine");
+            JLabel label = new JLabel("<html><center> Victory !<br> Level Completed !<br><img width = '100' height = '100' src ='" + getClass().getResource("zoro.jpg") + "'></center></html>");
+            int result = JOptionPane.showOptionDialog(this, label, "Victoire", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, new String[]{"OK"}, "OK");
+            if (result == JOptionPane.OK_OPTION)
+                dispose();
         }
     }
 }

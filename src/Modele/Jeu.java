@@ -14,11 +14,6 @@ public class Jeu extends Observable {
     public HashMap<Case, Point> Map = new HashMap<>();
 
 
-//    public Jeu(Point pHeros, Point pBloc) {
-//        //this.pHeros = pHeros;
-////        this.pBloc = pBloc;
-//    }
-
     public Point trouvePoint(Case c) {
         return this.Map.get(c);
     }
@@ -30,36 +25,6 @@ public class Jeu extends Observable {
             }
         }
         return null;
-    }
-
-    public void initialiseGrille() {
-//        Level l = LevelLector.readLevel("src/Levels.txt", this);
-//        for (int i = 0; i < H; i++) {
-//            for (int j = 0; j < L; j++) {
-//                Point point = new Point(j, i);
-//                if (i == 0 || j == 0 || j == L - 1 || i == H - 1) {
-//                    Mur m = new Mur(point);
-//                    Map.put(m, point);
-//
-//                } else if ((i == 10 && j == 10) || (i == 13 && j == 13)) {
-//                    Vide v = new Target(point);
-//                    v.entite = null;
-//                    Map.put(v, point);
-//                } else {
-//                    Vide v = new Vide(point);
-//                    if (v.p.equals(pHeros)) {
-//                        v.entite = new Hero();
-//                        //v.entite.addObserver(this);
-//                    } else if (v.p.equals(pBloc) || (i == 2 && j == 10)) {
-//                        v.entite = new Bloc();
-//                    } else {
-//                        v.entite = null;
-//                    }
-//                    Map.put(v, point);
-//
-//                }
-//            }
-//        }
     }
 
     public void deplacerHero(Direction d) {
@@ -110,8 +75,15 @@ public class Jeu extends Observable {
     }
 
 
-    public void restartGame(Jeu j){
-        this.pHeros = j.pHeros;
-        this.Map = new HashMap<>(j.Map);
+    public Jeu copyJeu(Jeu original) {
+        Jeu Copy = new Jeu();
+        Copy.L = original.L;
+        Copy.H = original.H;
+        Copy.pHeros = new Point(original.pHeros.x, original.pHeros.y);
+        Copy.Map = new HashMap<>();
+        for (Case c : original.Map.keySet()) {
+            Copy.Map.put(c, new Point(c.p.x, c.p.y));
+        }
+        return Copy;
     }
 }
