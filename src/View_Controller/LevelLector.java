@@ -8,35 +8,39 @@ import java.util.Scanner;
 
 public class LevelLector {
 
-    public static Level readLevel(String fichier, Jeu jeu) {
+    public static int readLevel(String fichier, Jeu jeu, int debut) {
         Level lev = new Level();
         int i = 0;
         try (BufferedReader br = new BufferedReader(new FileReader(fichier))) {
             String ligne;
             while ((ligne = br.readLine()) != null) {
-                if (ligne.charAt(0) == ';')
-                    break;
-
-                for (int j = 0; j < ligne.length(); j++) {
-                    switch (ligne.charAt(j)) {
-                        case '#':
-                            lev.addWall(i, j, jeu);
-                            break;
-                        case ' ':
-                            lev.addVide(i, j, jeu);
-                            break;
-                        case '@':
-                            lev.addPlayer(i, j, jeu);
-                            break;
-                        case '$':
-                            lev.addBox(i, j, jeu);
-                            break;
-                        case '.':
-                            lev.addTarget(i, j, jeu);
-                            break;
-                        default:
-                            System.err.println("caractere Invalide !");
-                            System.exit(1);
+//                if (ligne.isEmpty()){
+//                    continue;
+//                }
+                if (i >= debut) {
+                    if (ligne.charAt(0) == ';')
+                        break;
+                    for (int j = 0; j < ligne.length(); j++) {
+                        switch (ligne.charAt(j)) {
+                            case '#':
+                                lev.addWall(i - debut, j, jeu);
+                                break;
+                            case ' ':
+                                lev.addVide(i - debut, j, jeu);
+                                break;
+                            case '@':
+                                lev.addPlayer(i - debut, j, jeu);
+                                break;
+                            case '$':
+                                lev.addBox(i - debut, j, jeu);
+                                break;
+                            case '.':
+                                lev.addTarget(i - debut, j, jeu);
+                                break;
+                            default:
+                                System.err.println("caractere Invalide !");
+                                System.exit(1);
+                        }
                     }
                 }
                 i++;
@@ -44,9 +48,8 @@ public class LevelLector {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
         }
-        jeu.H = i;
-        return lev;
+        jeu.H = i - debut;
+        return i;
     }
 }

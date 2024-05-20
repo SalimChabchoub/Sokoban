@@ -7,11 +7,7 @@ import View_Controller.MF;
 // then press Enter. You can now see whitespace characters in your code.
 public class Main {
     public static void main(String[] args) {
-        Jeu grille = new Jeu();
-        LevelLector.readLevel("src/View_Controller/Levels.txt", grille);
-        System.out.println(grille.H);
-        System.out.println(grille.L);
-        MF mf = new MF(grille);
+        MF mf = new MF();
         mf.setVisible(true);
     }
 }

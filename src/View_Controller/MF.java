@@ -4,9 +4,12 @@ import Modele.*;
 import Modele.Point;
 import Modele.Jeu;
 
+import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -15,14 +18,17 @@ import static java.lang.Thread.sleep;
 public class MF extends JFrame implements Observer {
 
     Jeu J;
+
+    int ligne;
     ImagePanel[][] tabC;
     private JLayeredPane layeredPane;
     private JPanel jp;
     private CharacterAnimationPanel characterPanel;
     private Character character;
 
-    public MF(Jeu J) {
-        this.J = J;
+    public MF() {
+        this.J = new Jeu();
+        this.ligne = LevelLector.readLevel("src/View_Controller/Levels.txt", J, 0);
         this.tabC = new ImagePanel[J.H][J.L];
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -54,7 +60,6 @@ public class MF extends JFrame implements Observer {
         add(jp);
         setSize(J.L * 50, J.H * 50);
         characterPanel = new CharacterAnimationPanel();
-//        characterPanel.setSize(jp.getWidth()/J.L,jp.getWidth()/J.H);
         characterPanel.setSize(jpC.getWidth() / J.L, jpC.getWidth() / J.H);
         characterPanel.setOpaque(false);
         layeredPane.add(jp, JLayeredPane.DEFAULT_LAYER);
@@ -97,8 +102,9 @@ public class MF extends JFrame implements Observer {
         restartButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                int hauteur = J.H;
                 J = new Jeu();
-                LevelLector.readLevel("src/View_Controller/Levels.txt", J);
+                ligne = LevelLector.readLevel("src/View_Controller/Levels.txt", J, ligne - hauteur);
                 getContentPane().removeAll();
                 tabC = new ImagePanel[J.H][J.L];
                 build();
@@ -217,13 +223,34 @@ public class MF extends JFrame implements Observer {
                 }
                 repaint();
                 if (J.dectecteVictoire()) {
-                    System.out.println("partie termine");
-                    JLabel label = new JLabel("<html><center> Victory !<br> Level Completed !<br><img width = '100' height = '100' src ='" + getClass().getResource("zoro.jpg") + "'></center></html>");
-                    int result = JOptionPane.showOptionDialog(MF.this, label, "Victoire", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, new String[]{"OK"}, "OK");
-                    if (result == JOptionPane.OK_OPTION) {
-                        dispose();
-                        System.exit(0);
+                    try {
+                        AudioInputStream audio = AudioSystem.getAudioInputStream(new File("Ressources/Voicy_Brook-Laughter.wav").getAbsoluteFile());
+                        try {
+                            Clip clip = AudioSystem.getClip();
+                            clip.open(audio);
+                            clip.start();
+                        } catch (LineUnavailableException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } catch (UnsupportedAudioFileException e) {
+                        throw new RuntimeException(e);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
+                    JLabel label = new JLabel("<html><center> Victory !<br> Level Completed !<br><img width = '100' height = '100' src ='" + getClass().getResource("one-piece-zoro.gif") + "'></center></html>");
+                    int result = JOptionPane.showOptionDialog(MF.this, label, "Victoire", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, new String[]{"Play Again", "Next Level"}, "Play Again");
+                    dispose();
+                    int hauteur = J.H;
+                    J = new Jeu();
+                    if (result == 1) {
+                        ligne++;
+                        ligne = LevelLector.readLevel("src/View_Controller/Levels.txt", J, ligne);
+                    } else {
+                        ligne = LevelLector.readLevel("src/View_Controller/Levels.txt", J, ligne - hauteur);
+                    }
+                    getContentPane().removeAll();
+                    tabC = new ImagePanel[J.H][J.L];
+                    build();
                 }
             }
         });
