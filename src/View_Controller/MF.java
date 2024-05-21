@@ -18,20 +18,22 @@ import static java.lang.Thread.sleep;
 public class MF extends JFrame implements Observer {
 
     Jeu J;
-
-    int ligne;
     ImagePanel[][] tabC;
     private JLayeredPane layeredPane;
     private JPanel jp;
     private CharacterAnimationPanel characterPanel;
     private Character character;
-    String hero;
 
-    public MF(String hero) {
-        this.J = new Jeu();
-        this.ligne = LevelLector.readLevel("src/View_Controller/Levels.txt", J, 0);
+    public MF(Jeu jeu) {
+        this.J = jeu;
         this.tabC = new ImagePanel[J.H][J.L];
-        this.hero = hero;
+        Thread backgroundMusicThread = new Thread(() -> {
+            MusicPlayer musicPlayer = new MusicPlayer();
+            musicPlayer.playMusic("Ressources/backgroundMusic.wav");
+            musicPlayer.setVolume(-30.0f);
+        });
+        //On va mettre la music de fond sur un thread séparé pour ne pas géner le reste du code
+        backgroundMusicThread.start();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 build();
@@ -43,8 +45,11 @@ public class MF extends JFrame implements Observer {
 
     public void build() {
         Case c;
+        //On prend les dimensions de l'écran pour utiliser le 1/4
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         layeredPane = new JLayeredPane();
-        layeredPane.setPreferredSize(new Dimension(J.L * 100, J.H * 100));
+        layeredPane.setPreferredSize(new Dimension(screenSize.width/2, screenSize.width/2));
+        //On préfére le modèle carré meme si nos ressources marche sur d'autre formes
         layeredPane.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -52,21 +57,16 @@ public class MF extends JFrame implements Observer {
             }
         });
         jp = new JPanel(new BorderLayout());
-        JPanel jpBouton = new JPanel();
         JPanel jpC = new JPanel(new GridLayout(J.H, J.L));
-        jp.setBounds(0, 0, J.L * 100, J.H * 100);
+        jp.setBounds(0, 0, screenSize.width/2, screenSize.width/2);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        JButton quit = new JButton("Quit");
-        JButton restartButton = new JButton("Restart");
-        jpBouton.add(restartButton, BorderLayout.WEST);
-        jpBouton.add(quit, BorderLayout.EAST);
-        jp.add(jpBouton, BorderLayout.NORTH);
+        JButton restartButton = new JButton("Reset");
+        jp.add(restartButton, BorderLayout.BEFORE_FIRST_LINE);
         jp.add(jpC, BorderLayout.CENTER);
         setTitle("Sobokan");
         add(jp);
-        setSize(J.L * 100, J.H * 100);
-        restartButton.setBounds(0, 0, jpC.getWidth() / 20, jpC.getWidth() / 20);
-        characterPanel = new CharacterAnimationPanel(this.hero);
+        setSize(screenSize.width/2, screenSize.width/2);
+        characterPanel = new CharacterAnimationPanel();
         characterPanel.setSize(jpC.getWidth() / J.L, jpC.getWidth() / J.H);
         characterPanel.setOpaque(false);
         layeredPane.add(jp, JLayeredPane.DEFAULT_LAYER);
@@ -109,22 +109,12 @@ public class MF extends JFrame implements Observer {
         restartButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int hauteur = J.H;
-                J = new Jeu();
-                ligne = LevelLector.readLevel("src/View_Controller/Levels.txt", J, ligne - hauteur);
+                //Load le meme niveau
+                J.loadnextlevel(0);
                 getContentPane().removeAll();
                 tabC = new ImagePanel[J.H][J.L];
                 build();
                 MF.this.requestFocus();
-            }
-        });
-
-
-        quit.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-                System.exit(0);
             }
         });
     }
@@ -173,45 +163,6 @@ public class MF extends JFrame implements Observer {
         });
         requestFocus();
     }
-
-    public void animateBarrelMovement(int startRow, int startCol, int endRow, int endCol) {
-        final ImagePanel barrelPanel = tabC[startRow][startCol];
-        final int targetX = endCol * barrelPanel.getWidth();
-        final int targetY = endRow * barrelPanel.getHeight();
-
-        int characterSpeed = 18;
-        Timer timer = new Timer(70, new ActionListener() {
-            int currentX = barrelPanel.getX();
-            int currentY = barrelPanel.getY();
-            int dx = Integer.compare(targetX, currentX) * characterSpeed;
-            int dy = Integer.compare(targetY, currentY) * characterSpeed;
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                currentX += dx;
-                currentY += dy;
-
-                if ((dx > 0 && currentX >= targetX) || (dx < 0 && currentX <= targetX)) {
-                    currentX = targetX;
-                }
-                if ((dy > 0 && currentY >= targetY) || (dy < 0 && currentY <= targetY)) {
-                    currentY = targetY;
-                }
-
-                barrelPanel.setLocation(currentX, currentY);
-                barrelPanel.getParent().revalidate();
-                barrelPanel.getParent().repaint();
-
-                if (currentX == targetX && currentY == targetY) {
-                    ((Timer) e.getSource()).stop();
-                    tabC[endRow][endCol].setBarrelImage(ImageLoader.barrelImage);
-                    barrelPanel.setBarrelImage(null);
-                }
-            }
-        });
-        timer.start();
-    }
-
     @Override
     public void update(Observable o, Object arg) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -232,6 +183,7 @@ public class MF extends JFrame implements Observer {
                             final int finalI = i;
                             final int finalJ = j;
                             J.setAttendHero(true);
+                            //Lancement du thread qui gère les animations du caractères
                             Thread heroMovementThread = new Thread(() -> character.moveTo(finalI, finalJ, J));
                             heroMovementThread.start();
                         }
@@ -239,27 +191,27 @@ public class MF extends JFrame implements Observer {
                 }
                 repaint();
                 if (J.dectecteVictoire()) {
+                    //Gestion de l'effet sonors de la victoires
                     try {
-                        AudioInputStream audio = AudioSystem.getAudioInputStream(new File("Ressources/Voicy_Brook-Laughter.wav").getAbsoluteFile());
-
-                        Clip clip = AudioSystem.getClip();
-                        clip.open(audio);
-                        clip.start();
-
-                    } catch (UnsupportedAudioFileException | LineUnavailableException | IOException e) {
+                        AudioInputStream audio = AudioSystem.getAudioInputStream(new File("Ressources/levelwin.wav").getAbsoluteFile());
+                        try {
+                            Clip clip = AudioSystem.getClip();
+                            clip.open(audio);
+                            FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                            volumeControl.setValue(-30.0f);
+                            clip.start();
+                        } catch (LineUnavailableException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } catch (UnsupportedAudioFileException e) {
+                        throw new RuntimeException(e);
+                    } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
                     JLabel label = new JLabel("<html><center> Victory !<br> Level Completed !<br><img width = '100' height = '100' src ='" + MF.class.getClassLoader().getResource("one-piece-zoro.gif") + "'></center></html>");
                     int result = JOptionPane.showOptionDialog(MF.this, label, "Victoire", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, new String[]{"Play Again", "Next Level"}, "Play Again");
                     dispose();
-                    int hauteur = J.H;
-                    J = new Jeu();
-                    if (result == 1) {
-                        ligne++;
-                        ligne = LevelLector.readLevel("src/View_Controller/Levels.txt", J, ligne);
-                    } else {
-                        ligne = LevelLector.readLevel("src/View_Controller/Levels.txt", J, ligne - hauteur);
-                    }
+                    J.loadnextlevel(result);
                     getContentPane().removeAll();
                     tabC = new ImagePanel[J.H][J.L];
                     build();

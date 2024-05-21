@@ -1,7 +1,5 @@
 package Modele;
 
-import View_Controller.LevelLector;
-
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Map.Entry;
@@ -12,8 +10,20 @@ public class Jeu extends Observable {
     public int L, H;
     boolean attendHero = false;
     public HashMap<Case, Point> Map = new HashMap<>();
+    public int ligne=0;
 
-
+    public Jeu(){
+        this.ligne = LevelLector.readLevel(this, 0);
+    }
+    public void loadnextlevel(int resultat){
+        Map.clear();
+        if (resultat == 1) {
+            ligne++;
+            ligne = LevelLector.readLevel(this, ligne);
+        } else {
+            ligne = LevelLector.readLevel(this, ligne - H);
+        }
+    }
     public Point trouvePoint(Case c) {
         return this.Map.get(c);
     }
@@ -70,24 +80,9 @@ public class Jeu extends Observable {
                     nbcible += 1;
             }
         }
-
         if (nbcible == 0) {
-            System.out.println("partie termine");
             return true;
         }
         return false;
-    }
-
-
-    public Jeu copyJeu(Jeu original) {
-        Jeu Copy = new Jeu();
-        Copy.L = original.L;
-        Copy.H = original.H;
-        Copy.pHeros = new Point(original.pHeros.x, original.pHeros.y);
-        Copy.Map = new HashMap<>();
-        for (Case c : original.Map.keySet()) {
-            Copy.Map.put(c, new Point(c.p.x, c.p.y));
-        }
-        return Copy;
     }
 }

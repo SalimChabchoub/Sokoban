@@ -19,6 +19,7 @@ public class ImageLoader {
 
     static {
         try {
+            //On load tout nos images une fois, pour adoucir le temps de chargement lorsqu'on construit le niveau
             groundImage = loadImage("ground.png");
             wallImage = loadAnimatedImage("wall1.gif");
             barrelImage = loadImage("barrel.png");
@@ -26,7 +27,6 @@ public class ImageLoader {
             wallRight = loadImage("wallRight.png");
             wallTop = loadAnimatedImage("wallTop.gif");
             wallLeft = loadImage("wallLeft.png");
-            tempCharacter = loadImage("character.png");
             wallBottom = loadImage("wallBottom.png");
         } catch (IOException e) {
             e.printStackTrace();
@@ -34,6 +34,7 @@ public class ImageLoader {
     }
 
     private static BufferedImage loadImage(String filename) throws IOException {
+        //Très important la méthode d'importation
         URL resource = ImageLoader.class.getClassLoader().getResource(filename);
         if (resource == null) {
             throw new IOException("Resource not found: " + filename);

@@ -13,25 +13,22 @@ public class CharacterAnimationPanel extends JPanel {
     public int currentAnimation = 2;
     public int poseWidth;
     public int poseHeight;
-    public String hero;
     boolean isMoving=false;
 
-//    public CharacterAnimationPanel(String hero){
-//        this.hero =hero;
-//    }
-
-    public CharacterAnimationPanel(String hero) {
-        this.hero = hero;
+    public CharacterAnimationPanel() {
         try {
-            spriteSheet = ImageIO.read(new File("Ressources/"+this.hero+".png"));
-            poseWidth = spriteSheet.getWidth() / 8; // Assuming 8 poses per row
-            poseHeight = spriteSheet.getHeight() / 4; // Assuming 4 rows of animations
+            //La spriteShett fait 8 poses par lignes et il y a 4 lignes
+            spriteSheet = ImageIO.read(new File("Ressources/test_walk.png"));
+            poseWidth = spriteSheet.getWidth() / 8;
+            poseHeight = spriteSheet.getHeight() / 4;
         } catch (IOException e) {
             e.printStackTrace();
         }
         Timer timer = new Timer(50, e -> {
+            // changement de mouvement chaque 50 ms
             if (isMoving) {
-                currentPose = (currentPose + 1) % 7; // Change pose every 100 milliseconds
+                //La derniere pose ne sert pas à grandchose
+                currentPose = (currentPose + 1) % 7;
                 repaint();
             }
         });
@@ -42,12 +39,12 @@ public class CharacterAnimationPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        // Calculate the scaling factor to enlarge the character
+        // Calcul du scale pour agrandir ou réduire la taille de l'héros sur son panel
         double scaleFactor = Math.min(getWidth() / (double) poseWidth, getHeight() / (double) poseHeight)*3;
         int scaledWidth = (int)(poseWidth * scaleFactor);
         int scaledHeight = (int)(poseHeight * scaleFactor);
 
-        // Calculate the coordinates to keep the character centered
+        //Bien centré l'héros
         int x = (getWidth() - scaledWidth) / 2;
         int y = (getHeight() - scaledHeight) / 2;
 
@@ -57,8 +54,10 @@ public class CharacterAnimationPanel extends JPanel {
     }
 
 
+    //Bouton On/Off de l'animation
     public void setMoving(boolean moving) {
         isMoving = moving;
     }
+    //Permettre de choisir que quelle direction va notre héros se diriger
     public void setCurrentAnimation(int animation){currentAnimation=animation;}
 }

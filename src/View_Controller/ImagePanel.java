@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class ImagePanel extends JPanel {
+    //Un JPanel améliorer avec plusieurs couches
     private BufferedImage imageToDisplay;
     private BufferedImage barrelImage;
     private BufferedImage targetImage;
@@ -54,6 +55,7 @@ public class ImagePanel extends JPanel {
             g.drawImage(wallTopImage.getImage(), 0, 0, panelWidth, panelHeight, this);
         }
         if (targetImage != null) {
+            //Calacule du ratio pour forcé l'image a ete proportionnael tous le temps
             int imageWidth = targetImage.getWidth();
             int imageHeight = targetImage.getHeight();
 
