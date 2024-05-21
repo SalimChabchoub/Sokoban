@@ -23,6 +23,7 @@ public class MF extends JFrame implements Observer {
     private JPanel jp;
     private CharacterAnimationPanel characterPanel;
     private Character character;
+    private String hero;
 
     public MF(Jeu jeu) {
         this.J = jeu;
@@ -66,7 +67,7 @@ public class MF extends JFrame implements Observer {
         setTitle("Sobokan");
         add(jp);
         setSize(screenSize.width/2, screenSize.width/2);
-        characterPanel = new CharacterAnimationPanel();
+        characterPanel = new CharacterAnimationPanel(this.hero);
         characterPanel.setSize(jpC.getWidth() / J.L, jpC.getWidth() / J.H);
         characterPanel.setOpaque(false);
         layeredPane.add(jp, JLayeredPane.DEFAULT_LAYER);
@@ -218,5 +219,9 @@ public class MF extends JFrame implements Observer {
                 }
             }
         });
+    }
+
+    public void setHero(String hero) {
+        this.hero = hero;
     }
 }

@@ -1,5 +1,7 @@
 package View_Controller;
 
+import Modele.Jeu;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -48,7 +50,9 @@ public class Menu extends JFrame implements Observer {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();
-                MF mf = new MF(characterPanel.hero);
+                Jeu J = new Jeu();
+                MF mf = new MF(J);
+                mf.setHero(characterPanel.hero);
                 mf.setVisible(true);
             }
         });
