@@ -13,11 +13,17 @@ public class CharacterAnimationPanel extends JPanel {
     public int currentAnimation = 2;
     public int poseWidth;
     public int poseHeight;
+    public String hero;
     boolean isMoving=false;
 
-    public CharacterAnimationPanel() {
+//    public CharacterAnimationPanel(String hero){
+//        this.hero =hero;
+//    }
+
+    public CharacterAnimationPanel(String hero) {
+        this.hero = hero;
         try {
-            spriteSheet = ImageIO.read(new File("Ressources/test_walk.png"));
+            spriteSheet = ImageIO.read(new File("Ressources/"+this.hero+".png"));
             poseWidth = spriteSheet.getWidth() / 8; // Assuming 8 poses per row
             poseHeight = spriteSheet.getHeight() / 4; // Assuming 4 rows of animations
         } catch (IOException e) {

@@ -25,11 +25,13 @@ public class MF extends JFrame implements Observer {
     private JPanel jp;
     private CharacterAnimationPanel characterPanel;
     private Character character;
+    String hero;
 
-    public MF() {
+    public MF(String hero) {
         this.J = new Jeu();
         this.ligne = LevelLector.readLevel("src/View_Controller/Levels.txt", J, 0);
         this.tabC = new ImagePanel[J.H][J.L];
+        this.hero = hero;
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 build();
@@ -42,7 +44,7 @@ public class MF extends JFrame implements Observer {
     public void build() {
         Case c;
         layeredPane = new JLayeredPane();
-        layeredPane.setPreferredSize(new Dimension(J.L * 200, J.H * 200));
+        layeredPane.setPreferredSize(new Dimension(J.L * 100, J.H * 100));
         layeredPane.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -50,16 +52,21 @@ public class MF extends JFrame implements Observer {
             }
         });
         jp = new JPanel(new BorderLayout());
+        JPanel jpBouton = new JPanel();
         JPanel jpC = new JPanel(new GridLayout(J.H, J.L));
-        jp.setBounds(0, 0, J.L * 200, J.H * 200);
+        jp.setBounds(0, 0, J.L * 100, J.H * 100);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        JButton restartButton = new JButton("Reset");
-        jp.add(restartButton, BorderLayout.BEFORE_FIRST_LINE);
+        JButton quit = new JButton("Quit");
+        JButton restartButton = new JButton("Restart");
+        jpBouton.add(restartButton, BorderLayout.WEST);
+        jpBouton.add(quit, BorderLayout.EAST);
+        jp.add(jpBouton, BorderLayout.NORTH);
         jp.add(jpC, BorderLayout.CENTER);
         setTitle("Sobokan");
         add(jp);
-        setSize(J.L * 50, J.H * 50);
-        characterPanel = new CharacterAnimationPanel();
+        setSize(J.L * 100, J.H * 100);
+        restartButton.setBounds(0, 0, jpC.getWidth() / 20, jpC.getWidth() / 20);
+        characterPanel = new CharacterAnimationPanel(this.hero);
         characterPanel.setSize(jpC.getWidth() / J.L, jpC.getWidth() / J.H);
         characterPanel.setOpaque(false);
         layeredPane.add(jp, JLayeredPane.DEFAULT_LAYER);
@@ -109,6 +116,15 @@ public class MF extends JFrame implements Observer {
                 tabC = new ImagePanel[J.H][J.L];
                 build();
                 MF.this.requestFocus();
+            }
+        });
+
+
+        quit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+                System.exit(0);
             }
         });
     }
@@ -225,19 +241,15 @@ public class MF extends JFrame implements Observer {
                 if (J.dectecteVictoire()) {
                     try {
                         AudioInputStream audio = AudioSystem.getAudioInputStream(new File("Ressources/Voicy_Brook-Laughter.wav").getAbsoluteFile());
-                        try {
-                            Clip clip = AudioSystem.getClip();
-                            clip.open(audio);
-                            clip.start();
-                        } catch (LineUnavailableException e) {
-                            throw new RuntimeException(e);
-                        }
-                    } catch (UnsupportedAudioFileException e) {
-                        throw new RuntimeException(e);
-                    } catch (IOException e) {
+
+                        Clip clip = AudioSystem.getClip();
+                        clip.open(audio);
+                        clip.start();
+
+                    } catch (UnsupportedAudioFileException | LineUnavailableException | IOException e) {
                         throw new RuntimeException(e);
                     }
-                    JLabel label = new JLabel("<html><center> Victory !<br> Level Completed !<br><img width = '100' height = '100' src ='" + getClass().getResource("one-piece-zoro.gif") + "'></center></html>");
+                    JLabel label = new JLabel("<html><center> Victory !<br> Level Completed !<br><img width = '100' height = '100' src ='" + MF.class.getClassLoader().getResource("one-piece-zoro.gif") + "'></center></html>");
                     int result = JOptionPane.showOptionDialog(MF.this, label, "Victoire", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, new String[]{"Play Again", "Next Level"}, "Play Again");
                     dispose();
                     int hauteur = J.H;
