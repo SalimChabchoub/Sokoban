@@ -16,13 +16,15 @@ public class Menu extends JFrame implements Observer {
     }
 
     public void build() {
+        //Construction du menu
         JPanel jptitre = new JPanel();
         JPanel menu = new JPanel(new BorderLayout());
         characterPanel.setSize(menu.getWidth() / 10, menu.getWidth() / 10);
         characterPanel.setOpaque(false);
         JLabel titre = new JLabel("Finding Zoro");
-        String[] characters = {"Zoro", "Escanor", "Gojo"};
-        titre.setFont(new Font("Arial", Font.BOLD, 24));
+        String[] characters = {"Zoro", "Escanor", "Gojo"};// mettre les valeur du combo box
+        titre.setFont(new Font("Lato", Font.BOLD, 24));
+        titre.setForeground(Color.DARK_GRAY);
         jptitre.add(titre);
         JPanel jpb = new JPanel();
         JButton play = new JButton("Play");
@@ -40,6 +42,8 @@ public class Menu extends JFrame implements Observer {
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+
+        // Ajouter les evenements pour les boutons
         play.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
